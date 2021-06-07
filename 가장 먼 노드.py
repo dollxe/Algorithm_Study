@@ -12,4 +12,42 @@
 # n	vertex	return
 # 6	[[3, 6], [4, 3], [3, 2], [1, 3], [1, 2], [2, 4], [5, 2]]	3
 
+from collections import defaultdict
+import heapq
 
+def make_graph(n, vertex):
+    graph = defaultdict(list)
+    for s, e in vertex:
+        graph[s].append(e)
+        graph[e].append(s)
+    return graph
+
+def dijkstra(graph, start):
+    distances = {node: float('inf') for node in graph}
+    distances[start] = 0
+
+    queue = []
+    heapq.heappush(queue, [distances[start], start])
+    
+    while queue:
+        current_distance, current_node = heapq.heappop(queue)
+        if distances[current_node] < current_distance:
+            continue
+
+        for n_node in graph[current_node]:
+            distance = current_distance + 1
+            if distance < distances[n_node]:
+                distances[n_node] = distance
+                heapq.heappush(queue, [distance, n_node])
+
+    return distances
+
+def solution(n, edge):
+    graph = make_graph(n, edge)
+
+    distances = list(dijkstra(graph, 1).values())
+    answer = distances.count(max(distances))
+    return answer
+
+if __name__ == '__main__':
+    print(f'answer = {solution(6, [[3, 6], [4, 3], [3, 2], [1, 3], [1, 2], [2, 4], [5, 2]])}')
