@@ -1,3 +1,5 @@
+## 비트로 표현하여 푸는 법 공부해볼것. 4개의 컬럼, 학번만 포함 -> 0001...
+
 import collections
 from itertools import combinations, permutations
 
