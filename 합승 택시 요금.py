@@ -1,7 +1,8 @@
 from collections import deque, defaultdict
+import heapq
 
-def make_graph(li):
-    g = defaultdict(list)
+def make_graph(li, n):
+    g = {node:[] for node in range(1, n+1)}
     
     for s, e, distance in li:
         g[s].append((e, distance))
@@ -9,33 +10,42 @@ def make_graph(li):
     
     return g
 
-def bfs(start, end, graph):
-    q = deque([(start, 0)])
-    total_distance = 0
+def dijkstra(graph, start):
+    distances = {node: float('inf') for node in graph}
+    distances[start] = 0    ## 시작값 0
+    q = []
+    heapq.heappush(q, (start, distances[start]))
 
     while q:
-        now_pos, now_distance = q.popleft()
-        total_distance += now_distance
+        now_pos, now_distance = heapq.heappop(q)
 
-        if now_pos == end: break
+        if now_distance > distances[now_pos]: continue
+        # 기존의 거리보다 길면 continue
 
-        for pos, distance in graph[now_pos]:
-            q.append((pos, distance))
-     
-    return total_distance
+        for next_pos, next_distance in graph[now_pos]:
+            candidate_distance = now_distance + next_distance
+            if candidate_distance < distances[next_pos]:
+                distances[next_pos] = candidate_distance
+                heapq.heappush(q, (next_pos, candidate_distance))
+    
+    return distances
+    
 
 def solution(n, s, a, b, fares):
-    answer = 0
+    answer = float('inf')
 
-    g = make_graph(fares)
+    g = make_graph(fares, n)
 
-    _1 = bfs(s, a, g) + bfs(a, b, g)
-    _2 = bfs(s, b, g) + bfs(b, a, g)
+    dp = [[]] + [dijkstra(g, i) for i in range(1, n+1)]
 
-    if _1 > _2:
-        answer = _2
-    else:
-        answer = _1
+    for i in range(1, n+1):  # 합승 목적지
+        if i != s:
+            distance = dp[i][s]
+        else:
+            distance = 0
+        distance += dp[i][a] + dp[i][b]
+        if distance < answer:
+            answer = distance
 
     return answer
 
